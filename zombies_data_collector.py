@@ -15,6 +15,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import os
 
 class ZombiesDataCleaner:
     def __init__(self):
@@ -93,6 +94,10 @@ class ZombiesDataCollector:
             "easter_eggs": {},
             "gameplay_mechanics": {}
         }
+        
+        # Create data directory if it doesn't exist
+        self.data_dir = os.path.join(os.path.dirname(__file__), 'data')
+        os.makedirs(self.data_dir, exist_ok=True)
         
     def get_soup(self, url, retry_count=3):
         headers = {
@@ -369,18 +374,21 @@ class ZombiesDataCollector:
                             item_data[key] = cleaned_list
         
         # Save structured data
-        structured_filename = f'zombies_dataset_structured_{timestamp}.json'
+        structured_filename = os.path.join(self.data_dir, f'zombies_dataset_structured_{timestamp}.json')
         with open(structured_filename, 'w', encoding='utf-8') as f:
             json.dump(self.collected_data, f, ensure_ascii=False, indent=2)
         
         # Create enhanced training data
         training_data = self.create_training_data()
         
-        training_filename = f'zombies_dataset_training_{timestamp}.json'
+        # Save training data
+        training_filename = os.path.join(self.data_dir, f'zombies_dataset_training_{timestamp}.json')
         with open(training_filename, 'w', encoding='utf-8') as f:
             json.dump(training_data, f, ensure_ascii=False, indent=2)
             
-        print(f"\nData saved to {structured_filename} and {training_filename}")
+        print(f"\nData saved to:")
+        print(f"- {structured_filename}")
+        print(f"- {training_filename}")
 
     def create_training_data(self):
         """Create well-structured training examples"""
